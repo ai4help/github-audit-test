@@ -1,0 +1,35 @@
+name: GitHub Repo Audit
+
+on:
+  workflow_dispatch:  # Manual trigger
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2am UTC
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Run audit script
+        run: python audit_repos.py
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+
+      - name: Commit audit report
+        run: |
+          git config user.name "github-audit-bot"
+          git config user.email "bot@example.com"
+          git add github-audit-report.csv
+          git commit -m "Audit report - $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "Nothing to commit"
+          git push
