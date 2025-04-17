@@ -1,36 +1,42 @@
 name: GitHub Repo Audit
 
 on:
-  workflow_dispatch:  # Allows manual run
+  workflow_dispatch:  # Allows manual trigger
   schedule:
-    - cron: '0 2 * * *'  # Optional: runs daily at 2am UTC
+    - cron: '0 2 * * *'  # (Optional) Run daily at 2am UTC
 
 jobs:
   audit:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      # ✅ CHECKOUT USING YOUR TOKEN (not default bot)
+      - name: Checkout code using PAT
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PAT }}
 
+      # ✅ Set up Python
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
+      # ✅ Install requests
       - name: Install dependencies
         run: pip install requests
 
+      # ✅ Run the audit script
       - name: Run audit script
         run: python audit_repos.py
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
 
+      # ✅ Commit & push audit report
       - name: Commit audit report
         run: |
           git config user.name "github-audit-bot"
           git config user.email "bot@example.com"
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
           git add github-audit-report.csv
           git commit -m "Audit report - $(date -u +'%Y-%m-%dT%H:%M:%SZ')" || echo "Nothing to commit"
-          git push origin HEAD
+          git push
