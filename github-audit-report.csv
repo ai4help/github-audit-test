@@ -1,0 +1,5 @@
+Repo,Default Branch is 'main',Name Lowercase,Starts with 'platsup',Secret Scanning ON,Push Protection ON
+ai4help,True,True,False,False,False
+ai4help_ui,True,True,False,False,False
+demowithTemplate,True,False,False,False,False
+github-audit-test,True,True,False,False,False
